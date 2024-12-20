@@ -16,42 +16,41 @@ namespace SpinWaitDemo
 
         static void Main(string[] args)
         {
-            Mode mode = GetMode(args);
-            if (mode == Mode.NotDefined)
-            {
-                Console.WriteLine("Usage: SpinWaitDemo.exe (loop | once | until)");
-                return;
-            }
-            int count = GetCount();
+            Mode mode = ReadModeFromConsole();
+            int count = ReactCountFromConsole();
             Demo(mode, count);
         }
 
-        /// <summary>
-        /// 引数からモードを取得する
-        /// </summary>
-        static Mode GetMode(string[] args)
+
+        static Mode ReadModeFromConsole()
         {
-            if (args.Length == 0)
+            Console.Write("Select the waiting function.\n1: while loop\n2: SpinWait.SpinUntil\n3: SpinWait.SpinOnce\n(default: 1) : ");
+            while (true)
             {
-                return Mode.NotDefined;
-            }
-            switch (args[0].ToLower())
-            {
-                case "loop":
-                    return Mode.Loop;
-                case "until":
-                    return Mode.SpinUntil;
-                case "once":
-                    return Mode.SpinOnce;
-                default:
-                    return Mode.NotDefined;
+                string mode = Console.ReadLine().Trim();
+                switch (mode)
+                {
+                    case "":
+                    case "1":
+                        Console.WriteLine("Selected: using while loop");
+                        return Mode.Loop;
+                    case "2":
+                        Console.WriteLine("Selected: using SpinWait.SpinUntil");
+                        return Mode.SpinUntil;
+                    case "3":
+                        Console.WriteLine("Selected: using SpinWait.SpinOnce");
+                        return Mode.SpinOnce;
+                    default:
+                        Console.Write("Invalid input. Please input 1, 2 or 3: ");
+                        break;
+                }
             }
         }
 
         /// <summary>
         /// カウントを入力させる
         /// </summary>
-        static int GetCount()
+        static int ReactCountFromConsole()
         {
             int count = 0;
             Console.Write("Input count: ");
@@ -59,12 +58,18 @@ namespace SpinWaitDemo
             {
                 if (int.TryParse(Console.ReadLine(), out count))
                 {
+                    if (count >= 100)
+                    {
+                        Console.WriteLine("Count is too large. Please input less than 100.");
+                        count = 0;
+                    }
                     break;
                 }
                 else
                 {
-                    Console.Write("Invalid input. Input count: ");
+                    Console.Write("Invalid input.");
                 }
+                Console.Write("Input count: ");
             }
             return count;
         }
